@@ -1,0 +1,9 @@
+#ifndef SLICKCURSOR_RC
+#define SLICKCURSOR_RC
+
+#include "src/resource.h"
+
+IDR_ICO_MAIN ICON "res/pointer.ico"
+IDR_ICO_SMALL ICON "res/pointer_small.ico"
+
+#endif

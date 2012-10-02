@@ -22,7 +22,7 @@ void Bmp24::copyDcAt(HDC hdc, int x, int y, int width, int height)
 
     HDC memDC = CreateCompatibleDC(hdc);
     HBITMAP memBM = CreateCompatibleBitmap(hdc, width, height);
-    SelectObject(memDC, memBM);
+    HGDIOBJ old = SelectObject(memDC, memBM);
     BitBlt(memDC, 0, 0, width, height, hdc, x, y, SRCCOPY);
 
     BITMAPINFOHEADER bi = {0};
@@ -33,8 +33,9 @@ void Bmp24::copyDcAt(HDC hdc, int x, int y, int width, int height)
     bi.biBitCount = bits;
     bi.biCompression = BI_RGB;
 
-    GetDIBits(hdc, memBM, 0, height, pixels, (BITMAPINFO*) &bi, DIB_RGB_COLORS);
+    GetDIBits(memDC, memBM, 0, height, pixels, (BITMAPINFO*) &bi, DIB_RGB_COLORS);
 
+    SelectObject(memDC, old);
     DeleteDC(memDC);
     DeleteObject(memBM);
 }
@@ -43,7 +44,7 @@ void Bmp24::copyToDc(HDC hdc, int x, int y) const
 {
     HDC memDC = CreateCompatibleDC(hdc);
     HBITMAP memBM = CreateCompatibleBitmap(hdc, width, height);
-    SelectObject(memDC, memBM);
+    HGDIOBJ old = SelectObject(memDC, memBM);
 
     BITMAPINFOHEADER bi = {0};
     bi.biSize = sizeof(bi);
@@ -53,9 +54,10 @@ void Bmp24::copyToDc(HDC hdc, int x, int y) const
     bi.biBitCount = bits;
     bi.biCompression = BI_RGB;
 
-    SetDIBits(hdc, memBM, 0, height, pixels, (BITMAPINFO*) &bi, DIB_RGB_COLORS);
+    SetDIBits(memDC, memBM, 0, height, pixels, (BITMAPINFO*) &bi, DIB_RGB_COLORS);
     BitBlt(hdc, x, y, width, height, memDC, 0, 0, SRCCOPY);
 
+    SelectObject(memDC, old);
     DeleteDC(memDC);
     DeleteObject(memBM);
 }

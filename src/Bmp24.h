@@ -27,9 +27,7 @@ struct Bmp24 {
     void resize(int w, int h) {
         width = w;
         height = h;
-
         rowLength = ((width * bits + 31) / 32) * 4;
-
         pixels = (BYTE*) realloc(pixels, rowLength * height);
     }
 

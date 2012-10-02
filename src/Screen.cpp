@@ -139,7 +139,7 @@ static DWORD WINAPI ThreadProc(LPVOID)
                 PostMessage(hObserver, WM_SCREEN_OBSERVER, 0, 0);
         }
 
-        Sleep(1000/15);
+        Sleep(1000/10);
     }
 
     return 0;

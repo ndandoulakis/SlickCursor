@@ -1,4 +1,3 @@
-#include "bmp24.h"
 #include "navkeys.h"
 #include "windows.h"
 
@@ -41,7 +40,7 @@ void EndMouseEmulation()
 
 static VOID CALLBACK TimerProc(HWND, UINT, UINT_PTR, DWORD)
 {
-    if (input.arePressedKeys())
+    if (!input.arePressedKeys())
         SuspendScreenAnalysis();
     else
         ResumeScreenAnalysis();

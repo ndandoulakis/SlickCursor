@@ -170,8 +170,9 @@ static void NextCursorPos(POINT & pos)
     if (t >= 8) {
         // Keys are held down; Continuous motion
         bool diagonal = (emu.up() || emu.down()) && (emu.left() || emu.right());
-        pos.x += (int) (0.5 + vx * (diagonal? 0.707 : 1));
-        pos.y += (int) (0.5 + vy * (diagonal? 0.707 : 1));
+        double turbo = emu.lShift()? 2.5 : 1;
+        pos.x += (int) (0.5 + turbo * vx * (diagonal? 0.707 : 1));
+        pos.y += (int) (0.5 + turbo * vy * (diagonal? 0.707 : 1));
     }
 
     prevEmu = emu;

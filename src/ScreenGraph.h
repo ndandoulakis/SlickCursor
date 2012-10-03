@@ -18,9 +18,9 @@ struct ScreenGraph {
         clusters.reserve(1000);
     }
 
-    void analyze(HDC dc, int x, int y, int width, int height);
-    void binarizeBmp();
-    void findBlobs();
+    void analyze(Bmp24&);
+    void binarizeBmp(Bmp24&);
+    void findBlobs(Bmp24&);
     void buildIndex();
     void connectBlobs();
     void findClusters();
@@ -45,7 +45,6 @@ struct ScreenGraph {
         RECT bb;
     };
 
-    Bmp24 bmp;
     DWORD bmpHash;
 
     KdTree index;

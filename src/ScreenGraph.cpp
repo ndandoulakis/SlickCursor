@@ -3,19 +3,19 @@
 
 using namespace std;
 
-void ScreenGraph::analyze(HDC hdc, int x, int y, int width, int height)
+void ScreenGraph::analyze(Bmp24 & bmp)
 {
-    bmp.copyDcAt(hdc, x, y, width, height);
-
     DWORD hash = bmp.hash();
     if (bmpHash == hash)
         return;
 
     bmpHash = hash;
 
-    binarizeBmp();
+    binarizeBmp(bmp);
 
-    findBlobs();
+    explored.resize(bmp.width * bmp.height);
+
+    findBlobs(bmp);
 
     buildIndex();
 
@@ -24,18 +24,18 @@ void ScreenGraph::analyze(HDC hdc, int x, int y, int width, int height)
     findClusters();
 }
 
-void ScreenGraph::binarizeBmp()
+void ScreenGraph::binarizeBmp(Bmp24 & bmp)
 {
     bmp.grayify();
     bmp.filter();
     bmp.binarize(bmp.threshold());
 }
 
-void ScreenGraph::findBlobs()
+void ScreenGraph::findBlobs(Bmp24 & bmp)
 {
     blobs.clear();
 
-    explored.assign(bmp.width * bmp.height, false);
+    explored.assign(explored.size(), false);
 
     for (int y = 0; y < bmp.height; y++) {
         for (int x = 0; x < bmp.width; x++) {
@@ -170,8 +170,7 @@ void ScreenGraph::findClusters()
 {
     clusters.clear();
 
-    // using length big enough to avoid resize
-    explored.assign(bmp.width * bmp.height, false);
+    explored.assign(explored.size(), false);
 
     for (int i = 0; i < (int) blobs.size(); i++) {
            if (explored[i])

@@ -1,12 +1,21 @@
-#ifndef NAVKEYS_H
-#define NAVKEYS_H
+#ifndef EMUPARAMS_H
+#define EMUPARAMS_H
 
-struct NavKeys {
+struct EmuParams {
+    // Parameters
+    bool useArrows;
+    bool useNumpad;
+
     enum KEY {
-        UP, DOWN, CLEAR, LEFT, RIGHT, KEY_COUNT
+        UP, DOWN, CLEAR, LEFT, RIGHT, LSHIFT, KEY_COUNT
     };
 
     bool keys[KEY_COUNT];
+
+    EmuParams() {
+        useArrows = false;
+        useNumpad = true;
+    }
 
     bool up() {
         return keys[UP];
@@ -44,24 +53,26 @@ struct NavKeys {
         keys[RIGHT] = pressed;
     }
 
+    bool lShift() {
+        return keys[LSHIFT];
+    }
+
+    void setLShift(bool pressed) {
+        keys[LSHIFT] = pressed;
+    }
+
     bool arePressedKeys() {
-        int cnt = sizeof(keys) / sizeof(keys[0]);
-        for (int i=0; i<cnt; i++) {
+        for (int i=0; i<LSHIFT; i++) {
             if (keys[i]) return true;
         }
         return false;
     }
 
-    bool operator== (const NavKeys & other) const {
-        int cnt = sizeof(keys) / sizeof(keys[0]);
-        for (int i=0; i<cnt; i++) {
+    bool sameKeyState(const EmuParams & other) const {
+        for (int i=0; i<LSHIFT; i++) {
             if (keys[i] != other.keys[i]) return false;
         }
         return true;
-    }
-
-    bool operator!= (const NavKeys & other) const {
-        return !(*this == other);
     }
 
 };

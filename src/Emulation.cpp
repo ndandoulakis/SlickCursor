@@ -1,13 +1,10 @@
-#include "navkeys.h"
+#include "emuparams.h"
 #include "windows.h"
 
-// Parameters
-extern bool useArrows;
-extern bool useNumpad;
+EmuParams emu;
 
 static POINT trails[3];
 
-static NavKeys input;
 static HHOOK kbdHook;
 static UINT_PTR timerId;
 
@@ -40,7 +37,7 @@ void EndMouseEmulation()
 
 static VOID CALLBACK TimerProc(HWND, UINT, UINT_PTR, DWORD)
 {
-    if (!input.arePressedKeys())
+    if (!emu.arePressedKeys())
         SuspendScreenAnalysis();
     else
         ResumeScreenAnalysis();
@@ -70,21 +67,21 @@ static LRESULT CALLBACK KeyboardProc(int code, WPARAM wParam, LPARAM lParam)
     bool isPressed = WM_KEYDOWN == wParam;
 
     if (code == HC_ACTION) {
-        if ((useArrows && isExtended) || (useNumpad && !isExtended))
+        if ((emu.useArrows && isExtended) || (emu.useNumpad && !isExtended))
             switch (kbd->vkCode) {
-                case VK_UP: input.setUp(isPressed); return 1;
-                case VK_DOWN: input.setDown(isPressed); return 1;
-                case VK_LEFT: input.setLeft(isPressed); return 1;
-                case VK_RIGHT: input.setRight(isPressed); return 1;
+                case VK_UP: emu.setUp(isPressed); return 1;
+                case VK_DOWN: emu.setDown(isPressed); return 1;
+                case VK_LEFT: emu.setLeft(isPressed); return 1;
+                case VK_RIGHT: emu.setRight(isPressed); return 1;
             }
 
-        if (VK_CLEAR == kbd->vkCode && useNumpad) {
-            input.setClear(isPressed);
+        if (VK_CLEAR == kbd->vkCode && emu.useNumpad) {
+            emu.setClear(isPressed);
             return 1;
         }
     }
 
-    if (code == HC_ACTION && useNumpad && (VK_NUMLOCK != kbd->vkCode) && !GetKeyState(VK_NUMLOCK)) {
+    if (code == HC_ACTION && emu.useNumpad && (VK_NUMLOCK != kbd->vkCode) && !GetKeyState(VK_NUMLOCK)) {
         // TODO option for extended PgUp/PgDn, convenient for laptop users
         if (VK_PRIOR == kbd->vkCode && isPressed && !isExtended) {
             MouseWheelUp();
@@ -107,17 +104,21 @@ static LRESULT CALLBACK KeyboardProc(int code, WPARAM wParam, LPARAM lParam)
         }
     }
 
+    if (code == HC_ACTION && VK_LSHIFT == kbd->vkCode) {
+        emu.setLShift(isPressed);
+    }
+
     return CallNextHookEx(kbdHook, code, wParam, lParam);
 }
 
 static void NextCursorPos(POINT & pos)
 {
     static int t;
-    static NavKeys prevInput;
+    static EmuParams prevEmu;
 
-    if (!input.arePressedKeys()) {
+    if (!emu.arePressedKeys()) {
         t = 0;
-        prevInput = input;
+        prevEmu = emu;
         return;
     }
 
@@ -126,23 +127,23 @@ static void NextCursorPos(POINT & pos)
     double vx = 0;
     double vy = 0;
 
-    if (input.up()) {
+    if (emu.up()) {
         vy -= ay;
     }
 
-    if (input.down()) {
+    if (emu.down()) {
         vy += ay;
     }
 
-    if (input.left()) {
+    if (emu.left()) {
         vx -= ax;
     }
 
-    if (input.right()) {
+    if (emu.right()) {
         vx += ax;
     }
 
-    if (!prevInput.arePressedKeys()) {
+    if (!prevEmu.arePressedKeys()) {
         // Keys are pressed; Discrete motion
         int xdir = ((vx>0) - (vx<0));
         int ydir = ((vy>0) - (vy<0));
@@ -158,7 +159,7 @@ static void NextCursorPos(POINT & pos)
         }
     }
 
-    if (input != prevInput) {
+    if (!emu.sameKeyState(prevEmu)) {
         // Direction changed
         vx = 0;
         vy = 0;
@@ -168,12 +169,12 @@ static void NextCursorPos(POINT & pos)
 
     if (t >= 8) {
         // Keys are held down; Continuous motion
-        bool diagonal = (input.up() || input.down()) && (input.left() || input.right());
+        bool diagonal = (emu.up() || emu.down()) && (emu.left() || emu.right());
         pos.x += (int) (0.5 + vx * (diagonal? 0.707 : 1));
         pos.y += (int) (0.5 + vy * (diagonal? 0.707 : 1));
     }
 
-    prevInput = input;
+    prevEmu = emu;
 }
 
 static void UpdateMouseTrails(const POINT & pt)

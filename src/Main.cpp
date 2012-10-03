@@ -1,10 +1,7 @@
 #include "common.h"
+#include "emuparams.h"
 #include "resource.h"
 #include "windows.h"
-
-// Parameters
-bool useArrows = false;
-bool useNumpad = true;
 
 static char MAIN_CLASS[] = "SLICKCURSOR_MAIN_CLASS";
 static char MAIN_TITLE[] = "SlickCursor 0.1";
@@ -22,6 +19,8 @@ static void LeaveSysTray(HWND);
 
 static HWND hMain;
 static HWND hTool;
+
+extern EmuParams emu;
 
 extern bool BeginMouseEmulation();
 extern void EndMouseEmulation();
@@ -165,7 +164,7 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT message, WPARAM wParam, L
 
                     SetForegroundWindow(hwnd);
 
-                    HMENU hMenu = CreatePopupMenu(useArrows, useNumpad, toolVisible);
+                    HMENU hMenu = CreatePopupMenu(emu.useArrows, emu.useNumpad, toolVisible);
                     BOOL id = TrackPopupMenu(hMenu, TPM_RIGHTBUTTON|TPM_BOTTOMALIGN|TPM_RETURNCMD, pt.x, pt.y, 0, hwnd, NULL);
                     DestroyMenu(hMenu);
 
@@ -174,9 +173,9 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT message, WPARAM wParam, L
                     if (id == 1)
                         PostMessage(hwnd, WM_CLOSE, 0, 0);
                     else if (id == 2)
-                        useArrows = !useArrows;
+                        emu.useArrows = !emu.useArrows;
                     else if (id == 3)
-                        useNumpad = !useNumpad;
+                        emu.useNumpad = !emu.useNumpad;
                     else if (id == 4)
                         ShowWindow(hTool, toolVisible? SW_HIDE : SW_SHOW);
 

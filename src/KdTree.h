@@ -10,8 +10,8 @@ public:
     static const int K = 2;
 
     KdTree() {
-        data.reserve(1000);
-        nodes.reserve(1000);
+        data.reserve(2000);
+        nodes.reserve(2000);
         validTree = false;
     }
 

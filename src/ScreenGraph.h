@@ -13,8 +13,8 @@
 
 struct ScreenGraph {
     ScreenGraph() {
-        blobs.reserve(1000);
-        edges.reserve(100000);
+        blobs.reserve(2000);
+        edges.reserve(150000);
         clusters.reserve(1000);
     }
 

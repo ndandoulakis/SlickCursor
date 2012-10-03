@@ -17,7 +17,7 @@ struct EmuParams {
         useNumpad = true;
     }
 
-    bool up() {
+    bool up() const {
         return keys[UP];
     }
 
@@ -25,7 +25,7 @@ struct EmuParams {
         keys[UP] = pressed;
     }
 
-    bool down() {
+    bool down() const {
         return keys[DOWN] || keys[CLEAR];
     }
 
@@ -37,7 +37,7 @@ struct EmuParams {
         keys[CLEAR] = pressed;
     }
 
-    bool left() {
+    bool left() const {
         return keys[LEFT];
     }
 
@@ -45,7 +45,7 @@ struct EmuParams {
         keys[LEFT] = pressed;
     }
 
-    bool right() {
+    bool right() const {
         return keys[RIGHT];
     }
 
@@ -53,7 +53,7 @@ struct EmuParams {
         keys[RIGHT] = pressed;
     }
 
-    bool lShift() {
+    bool lShift() const {
         return keys[LSHIFT];
     }
 
@@ -61,7 +61,7 @@ struct EmuParams {
         keys[LSHIFT] = pressed;
     }
 
-    bool arePressedKeys() {
+    bool arePressedKeys() const {
         for (int i=0; i<LSHIFT; i++) {
             if (keys[i]) return true;
         }

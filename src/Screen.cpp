@@ -3,11 +3,18 @@
 #include "common.h"
 #include "screengraph.h"
 
+using namespace std;
+
 struct ScreenData {
     bool recent;
+
     POINT pt;
-    // TODO not the whole graph; only bmp and clusters
-    ScreenGraph graph;
+    Bmp24 bmp;
+    vector<ScreenGraph::Cluster> clusters;
+
+    ScreenData() {
+        clusters.reserve(1000);
+    }
 };
 
 // Data flow from Screen thread to Main thread through p2.
@@ -34,14 +41,14 @@ void DrawAnalysisData(HDC hdc)
 {
     PullRecentData();
 
-    p1->graph.bmp.copyToDc(hdc, 0, 0);
+    p1->bmp.copyToDc(hdc, 0, 0);
 
     SelectObject(hdc, GetStockObject(HOLLOW_BRUSH));
     SelectObject(hdc, GetStockObject(DC_PEN));
     SetDCPenColor(hdc, RGB(180, 180, 0));
 
-    for (int i = 0; i < (int) p1->graph.clusters.size(); i++) {
-        const ScreenGraph::Cluster & c = p1->graph.clusters[i];
+    for (int i = 0; i < (int) p1->clusters.size(); i++) {
+        const ScreenGraph::Cluster & c = p1->clusters[i];
         Rectangle(hdc, c.bb.left, c.bb.top, c.bb.right+1, c.bb.bottom+1);
     }
 
@@ -71,8 +78,8 @@ bool ChooseNearCluster(POINT & pt, bool upwards)
     int dmin = 1000;
     int my = 0;
 
-    for (int i = 0; i < (int) p1->graph.clusters.size(); i++) {
-        RECT c = p1->graph.clusters[i].bb;
+    for (int i = 0; i < (int) p1->clusters.size(); i++) {
+        RECT c = p1->clusters[i].bb;
 
         // Exclude horizontal lines, dots, etc
         if (c.bottom - c.top < 2)
@@ -120,19 +127,21 @@ void SuspendScreenAnalysis()
 
 static DWORD WINAPI ThreadProc(LPVOID)
 {
-    DWORD hash = p3->graph.bmpHash;
+    ScreenGraph graph;
 
     while (WaitForSingleObject(hEvent, INFINITE) == WAIT_OBJECT_0) {
         HDC screen = GetDC(NULL);
 
         GetCursorPos(& p3->pt);
-        p3->graph.analyze(screen, p3->pt.x-128, p3->pt.y-128, 256, 256);
+        p3->bmp.copyDcAt(screen, p3->pt.x-128, p3->pt.y-128, 256, 256);
+
+        DWORD hash = graph.bmpHash;
+        graph.analyze(p3->bmp);
 
         ReleaseDC(NULL, screen);
 
-        if (hash != p3->graph.bmpHash) {
-            hash = p3->graph.bmpHash;
-
+        if (hash != graph.bmpHash) {
+            p3->clusters.assign(graph.clusters.begin(), graph.clusters.end());
             PushRecentData();
 
             if (hObserver)

@@ -43,11 +43,11 @@
 		<Unit filename="src\Bmp24.cpp" />
 		<Unit filename="src\Bmp24.h" />
 		<Unit filename="src\Common.h" />
+		<Unit filename="src\EmuParams.h" />
 		<Unit filename="src\Emulation.cpp" />
 		<Unit filename="src\KdTree.cpp" />
 		<Unit filename="src\KdTree.h" />
 		<Unit filename="src\Main.cpp" />
-		<Unit filename="src\NavKeys.h" />
 		<Unit filename="src\Resource.h" />
 		<Unit filename="src\Screen.cpp" />
 		<Unit filename="src\ScreenGraph.cpp" />

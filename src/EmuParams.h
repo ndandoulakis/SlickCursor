@@ -85,10 +85,12 @@ struct EmuParams {
 
     void SaveParams(const char * appName) const {
         char buf[50];
+
         sprintf(buf, "%d", useArrows);
-        printf("%d\n", WriteProfileString(appName, "useArrows", buf));
+        WriteProfileString(appName, "useArrows", buf);
+
         sprintf(buf, "%d", useNumpad);
-        printf("%d\n", WriteProfileString(appName, "useNumpad", buf));
+        WriteProfileString(appName, "useNumpad", buf);
     }
 
 };

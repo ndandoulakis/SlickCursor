@@ -98,8 +98,18 @@ static LRESULT CALLBACK KeyboardProc(int code, WPARAM wParam, LPARAM lParam)
             return 1;
         }
 
-        if (VK_DIVIDE == kbd->vkCode) {
+        if (VK_SUBTRACT == kbd->vkCode) {
             MouseRightButton(isPressed);
+            return 1;
+        }
+
+        if (VK_DIVIDE == kbd->vkCode) {
+            keybd_event(VK_BROWSER_BACK, MapVirtualKey(VK_BROWSER_BACK, 0), isPressed?0:KEYEVENTF_KEYUP, NULL);
+            return 1;
+        }
+
+        if (VK_MULTIPLY == kbd->vkCode) {
+            keybd_event(VK_BROWSER_FORWARD, MapVirtualKey(VK_BROWSER_FORWARD, 0), isPressed?0:KEYEVENTF_KEYUP, NULL);
             return 1;
         }
     }

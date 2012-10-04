@@ -9,8 +9,6 @@ Monday 1, October 2012
 
 SlickCursor analyzes the screen to detect _interesting_ visual content. This way, the user can move the mouse cursor between adjacent graphical objects, such as, lines of text, menu options, icons, buttons, etc, with a single key press.
 
-SlickCursor is resource friendly, it keeps both CPU and memory usage low.
-
 To have a view of what SlickCursor does behind the scenes, click SlickCursor's icon (taskbar notification area) and select "Show Inspector". 
 
 [Give it a try!](https://github.com/ndandoulakis/SlickCursor/downloads)

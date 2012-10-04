@@ -25,10 +25,16 @@ struct Bmp24 {
     }
 
     void resize(int w, int h) {
+        if (width == w && height == h)
+            return;
+
         width = w;
         height = h;
         rowLength = ((width * bits + 31) / 32) * 4;
-        pixels = (BYTE*) realloc(pixels, rowLength * height);
+        // I replaced realloc with VirtualAlloc due to James Johnston's comment
+        // about the behavior of Get/SetDIBits. See Microsoft's online MSDN docs.
+        VirtualFree(pixels, 0, MEM_RELEASE);
+        pixels = (BYTE*) VirtualAlloc(NULL, rowLength * height, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
     }
 
     DWORD hash() const;

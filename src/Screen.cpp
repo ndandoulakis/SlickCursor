@@ -15,9 +15,12 @@ struct ScreenData {
 
 // Data flow from Screen thread to Main thread through p2.
 // To reduce mem allocs, ScreenData instances are reserved.
-static ScreenData * p1 = new ScreenData; // Main
-static ScreenData * p2 = new ScreenData; // (shared)
-static ScreenData * p3 = new ScreenData; // Screen
+static ScreenData d1;
+static ScreenData d2;
+static ScreenData d3;
+static ScreenData * p1 = &d1; // p1 <-> p2
+static ScreenData * p2 = &d2;
+static ScreenData * p3 = &d3; // p3 <-> p2
 
 static HWND hObserver;
 

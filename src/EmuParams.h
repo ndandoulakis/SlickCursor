@@ -1,6 +1,9 @@
 #ifndef EMUPARAMS_H
 #define EMUPARAMS_H
 
+#include <stdio.h>
+#include "windows.h"
+
 struct EmuParams {
     // Parameters
     bool useArrows;
@@ -73,6 +76,19 @@ struct EmuParams {
             if (keys[i] != other.keys[i]) return false;
         }
         return true;
+    }
+
+    void LoadParams(const char * appName) {
+        useArrows = GetProfileInt(appName, "useArrows", useArrows);
+        useNumpad = GetProfileInt(appName, "useNumpad", useNumpad);
+    }
+
+    void SaveParams(const char * appName) const {
+        char buf[50];
+        sprintf(buf, "%d", useArrows);
+        printf("%d\n", WriteProfileString(appName, "useArrows", buf));
+        sprintf(buf, "%d", useNumpad);
+        printf("%d\n", WriteProfileString(appName, "useNumpad", buf));
     }
 
 };

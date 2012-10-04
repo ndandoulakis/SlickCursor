@@ -46,6 +46,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
         return 0;
     }
 
+    emu.LoadParams("SlickCursor");
+
     GoSysTray(hMain);
 
     MSG messages;
@@ -57,6 +59,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
     LeaveSysTray(hMain);
 
     EndMouseEmulation();
+
+    emu.SaveParams("SlickCursor");
 
     return messages.wParam;
 }
@@ -253,9 +257,6 @@ static void GoSysTray(HWND hwnd)
     data.uFlags = NIF_TIP | NIF_MESSAGE | NIF_ICON | NIF_INFO;
 
     Shell_NotifyIcon(NIM_ADD, &data);
-
-    //data.uVersion = NOTIFYICON_VERSION;
-    //Shell_NotifyIcon(NIM_SETVERSION, &data);
 }
 
 static void LeaveSysTray(HWND hwnd)

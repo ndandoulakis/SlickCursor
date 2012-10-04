@@ -13,9 +13,6 @@
 
 struct ScreenGraph {
     ScreenGraph() {
-        blobs.reserve(2000);
-        edges.reserve(150000);
-        clusters.reserve(1000);
     }
 
     void analyze(Bmp24&);
@@ -50,6 +47,7 @@ struct ScreenGraph {
     KdTree index;
 
     std::vector<bool> explored;
+    std::queue<int> queue;
 
     std::vector<Edge> edges;
     std::vector<Blob> blobs;

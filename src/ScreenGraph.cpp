@@ -33,9 +33,11 @@ void ScreenGraph::binarizeBmp(Bmp24 & bmp)
 
 void ScreenGraph::findBlobs(Bmp24 & bmp)
 {
-    blobs.clear();
-
+    std::queue<int> empty;
+    swap(queue, empty);
     explored.assign(explored.size(), false);
+
+    blobs.clear();
 
     for (int y = 0; y < bmp.height; y++) {
         for (int x = 0; x < bmp.width; x++) {
@@ -55,7 +57,6 @@ void ScreenGraph::findBlobs(Bmp24 & bmp)
             blob.bb.bottom = y;
 
             // BFS
-            queue<int> queue;
             queue.push(ofs);
             explored[ofs] = true;
             while (queue.size()) {
@@ -168,9 +169,11 @@ void ScreenGraph::connectBlobs()
 
 void ScreenGraph::findClusters()
 {
-    clusters.clear();
-
+    std::queue<int> empty;
+    swap(queue, empty);
     explored.assign(explored.size(), false);
+
+    clusters.clear();
 
     for (int i = 0; i < (int) blobs.size(); i++) {
            if (explored[i])
@@ -180,7 +183,6 @@ void ScreenGraph::findClusters()
             Cluster c = {{bb.left, bb.top, bb.right, bb.bottom}};
 
             // BFS
-            queue<int> queue;
             queue.push(i);
             explored[i] = true;
             while (queue.size()) {

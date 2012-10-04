@@ -11,10 +11,6 @@ struct ScreenData {
     POINT pt;
     Bmp24 bmp;
     vector<ScreenGraph::Cluster> clusters;
-
-    ScreenData() {
-        clusters.reserve(1000);
-    }
 };
 
 // Data flow from Screen thread to Main thread through p2.

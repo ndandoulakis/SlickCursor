@@ -4,7 +4,7 @@
 #include "windows.h"
 
 static char MAIN_CLASS[] = "SLICKCURSOR_MAIN_CLASS";
-static char MAIN_TITLE[] = "SlickCursor 0.3a";
+static char MAIN_TITLE[] = "SlickCursor 0.3";
 static char TOOL_CLASS[] = "SLICKCURSOR_TOOL_CLASS";
 static char TOOL_TITLE[] = "SlickCursor - Inspector";
 

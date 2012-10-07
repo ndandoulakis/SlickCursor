@@ -28,7 +28,7 @@ With a single key press, users are able to move the mouse cursor, up and down, o
 [+] mouse Left Button, [-] mouse Right Button<br>
 [/] browser Back Button, [*] browser Forward Button<br>
 
-**Speed acceleration**
+**Fast speed**
 
 hold down [Left Shift] while moving the cursor
 

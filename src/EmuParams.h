@@ -6,8 +6,9 @@
 
 struct EmuParams {
     // Parameters
-    bool useArrows;
+    bool useExtended;
     bool useNumpad;
+    bool useScreenAnalysis;
 
     enum KEY {
         UP, DOWN, CLEAR, LEFT, RIGHT, LSHIFT, KEY_COUNT
@@ -16,8 +17,9 @@ struct EmuParams {
     bool keys[KEY_COUNT];
 
     EmuParams() {
-        useArrows = false;
+        useExtended = true;
         useNumpad = true;
+        useScreenAnalysis = true;
     }
 
     bool up() const {
@@ -79,18 +81,25 @@ struct EmuParams {
     }
 
     void LoadParams(const char * appName) {
-        useArrows = GetProfileInt(appName, "useArrows", useArrows);
+        useExtended = GetProfileInt(appName, "useExtended", useExtended);
         useNumpad = GetProfileInt(appName, "useNumpad", useNumpad);
+        useScreenAnalysis = GetProfileInt(appName, "useScreenAnalysis", useScreenAnalysis);
     }
 
     void SaveParams(const char * appName) const {
+        // Note that WriteProfileString doesn't
+        // work while the OS is shutting down.
+
         char buf[50];
 
-        sprintf(buf, "%d", useArrows);
-        WriteProfileString(appName, "useArrows", buf);
+        sprintf(buf, "%d", useExtended);
+        WriteProfileString(appName, "useExtended", buf);
 
         sprintf(buf, "%d", useNumpad);
         WriteProfileString(appName, "useNumpad", buf);
+
+        sprintf(buf, "%d", useScreenAnalysis);
+        WriteProfileString(appName, "useScreenAnalysis", buf);
     }
 
 };

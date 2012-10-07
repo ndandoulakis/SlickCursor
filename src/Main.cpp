@@ -4,13 +4,13 @@
 #include "windows.h"
 
 static char MAIN_CLASS[] = "SLICKCURSOR_MAIN_CLASS";
-static char MAIN_TITLE[] = "SlickCursor 0.2";
+static char MAIN_TITLE[] = "SlickCursor 0.3a";
 static char TOOL_CLASS[] = "SLICKCURSOR_TOOL_CLASS";
 static char TOOL_TITLE[] = "SlickCursor - Inspector";
 
 static HWND CreateMainWindow(HINSTANCE);
 static HWND CreateToolWindow(HINSTANCE);
-static HMENU CreatePopupMenu(bool, bool, bool);
+static HMENU CreatePopupMenu(const EmuParams&, bool);
 static LRESULT CALLBACK MainWindowProc(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK ToolWindowProc(HWND, UINT, WPARAM, LPARAM);
 static bool AcquireAppMutex();
@@ -59,8 +59,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
     LeaveSysTray(hMain);
 
     EndMouseEmulation();
-
-    emu.SaveParams("SlickCursor");
 
     return messages.wParam;
 }
@@ -141,13 +139,14 @@ static HWND CreateToolWindow(HINSTANCE hInst)
     return hwnd;
 }
 
-static HMENU CreatePopupMenu(bool arrows, bool numpad, bool tool)
+static HMENU CreatePopupMenu(const EmuParams & p, bool tool)
 {
     HMENU hMenu = CreatePopupMenu();
-    InsertMenu(hMenu, -1, MF_BYPOSITION|MF_STRING|(arrows?MF_CHECKED:MF_UNCHECKED), 2, "Use arrow keys");
-    InsertMenu(hMenu, -1, MF_BYPOSITION|MF_STRING|(numpad?MF_CHECKED:MF_UNCHECKED), 3, "Use numpad keys");
+    InsertMenu(hMenu, -1, MF_BYPOSITION|MF_STRING|(p.useExtended?MF_CHECKED:MF_UNCHECKED), 2, "Use extended keys");
+    InsertMenu(hMenu, -1, MF_BYPOSITION|MF_STRING|(p.useNumpad?MF_CHECKED:MF_UNCHECKED), 3, "Use numpad keys");
     InsertMenu(hMenu, -1, MF_BYPOSITION|MF_SEPARATOR, 0, 0);
     InsertMenu(hMenu, -1, MF_BYPOSITION|MF_STRING|(tool?MF_CHECKED:MF_UNCHECKED), 4, "Show Inspector");
+    InsertMenu(hMenu, -1, MF_BYPOSITION|MF_STRING|(p.useScreenAnalysis?MF_CHECKED:MF_UNCHECKED), 5, "Enable screen analysis");
     InsertMenu(hMenu, -1, MF_BYPOSITION|MF_SEPARATOR, 0, 0);
     InsertMenu(hMenu, -1, MF_BYPOSITION|MF_STRING, 1, "Exit");
 
@@ -168,7 +167,7 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT message, WPARAM wParam, L
 
                     SetForegroundWindow(hwnd);
 
-                    HMENU hMenu = CreatePopupMenu(emu.useArrows, emu.useNumpad, toolVisible);
+                    HMENU hMenu = CreatePopupMenu(emu, toolVisible);
                     BOOL id = TrackPopupMenu(hMenu, TPM_RIGHTBUTTON|TPM_BOTTOMALIGN|TPM_RETURNCMD, pt.x, pt.y, 0, hwnd, NULL);
                     DestroyMenu(hMenu);
 
@@ -177,11 +176,15 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT message, WPARAM wParam, L
                     if (id == 1)
                         PostMessage(hwnd, WM_CLOSE, 0, 0);
                     else if (id == 2)
-                        emu.useArrows = !emu.useArrows;
+                        emu.useExtended = !emu.useExtended;
                     else if (id == 3)
                         emu.useNumpad = !emu.useNumpad;
                     else if (id == 4)
                         ShowWindow(hTool, toolVisible? SW_HIDE : SW_SHOW);
+                    else if (id == 5)
+                        emu.useScreenAnalysis = !emu.useScreenAnalysis;
+
+                    emu.SaveParams("SlickCursor");
 
                     break;
             }

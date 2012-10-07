@@ -37,7 +37,7 @@ void EndMouseEmulation()
 
 static VOID CALLBACK TimerProc(HWND, UINT, UINT_PTR, DWORD)
 {
-    if (!emu.arePressedKeys())
+    if (!emu.useScreenAnalysis || !emu.arePressedKeys())
         SuspendScreenAnalysis();
     else
         ResumeScreenAnalysis();
@@ -67,7 +67,7 @@ static LRESULT CALLBACK KeyboardProc(int code, WPARAM wParam, LPARAM lParam)
     bool isPressed = WM_KEYDOWN == wParam;
 
     if (code == HC_ACTION) {
-        if ((emu.useArrows && isExtended) || (emu.useNumpad && !isExtended))
+        if ((emu.useExtended && isExtended) || (emu.useNumpad && !isExtended))
             switch (kbd->vkCode) {
                 case VK_UP: emu.setUp(isPressed); return 1;
                 case VK_DOWN: emu.setDown(isPressed); return 1;
@@ -81,8 +81,19 @@ static LRESULT CALLBACK KeyboardProc(int code, WPARAM wParam, LPARAM lParam)
         }
     }
 
+    if (code == HC_ACTION && emu.useExtended && isExtended) {
+        if (VK_PRIOR == kbd->vkCode && isPressed) {
+            MouseWheelUp();
+            return 1;
+        }
+
+        if (VK_NEXT == kbd->vkCode && isPressed) {
+            MouseWheelDown();
+            return 1;
+        }
+    }
+
     if (code == HC_ACTION && emu.useNumpad && (VK_NUMLOCK != kbd->vkCode) && !GetKeyState(VK_NUMLOCK)) {
-        // TODO option for extended PgUp/PgDn, convenient for laptop users
         if (VK_PRIOR == kbd->vkCode && isPressed && !isExtended) {
             MouseWheelUp();
             return 1;

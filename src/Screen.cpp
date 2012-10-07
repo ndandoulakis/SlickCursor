@@ -29,7 +29,7 @@ static void PullRecentData();
 static void PushRecentData();
 
 static HANDLE hEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
-static HANDLE hThread = CreateThread(NULL, 0, ThreadProc, NULL, 0, NULL);
+static HANDLE hThread = CreateThread(NULL, 128000, ThreadProc, NULL, 0, NULL);
 
 void SetScreenObserver(HWND hwnd)
 {

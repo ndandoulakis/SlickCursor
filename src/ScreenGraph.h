@@ -19,23 +19,14 @@ struct ScreenGraph {
     void binarizeBmp(Bmp24&);
     void findBlobs(Bmp24&);
     void buildIndex();
-    void connectBlobs();
     void findClusters();
-
-    struct Edge {
-        // valid if positive
-        long iBlob;
-        long iNext;
-    };
+    bool areConnected(int, int) const;
 
     struct Blob {
         RECT bb;
         POINT centroid;
         long area;
         long diagonal;
-
-        // valid if positive
-        long iLastEdge;
     };
 
     struct Cluster {
@@ -49,7 +40,6 @@ struct ScreenGraph {
     std::vector<bool> explored;
     std::queue<int> queue;
 
-    std::vector<Edge> edges;
     std::vector<Blob> blobs;
     std::vector<Cluster> clusters;
 

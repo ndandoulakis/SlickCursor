@@ -13,13 +13,9 @@ void ScreenGraph::analyze(Bmp24 & bmp)
 
     binarizeBmp(bmp);
 
-    explored.resize(bmp.width * bmp.height);
-
     findBlobs(bmp);
 
     buildIndex();
-
-    connectBlobs();
 
     findClusters();
 }
@@ -35,7 +31,7 @@ void ScreenGraph::findBlobs(Bmp24 & bmp)
 {
     std::queue<int> empty;
     swap(queue, empty);
-    explored.assign(explored.size(), false);
+    explored.assign(bmp.width * bmp.height, false);
 
     blobs.clear();
 
@@ -111,67 +107,11 @@ void ScreenGraph::buildIndex()
     }
 }
 
-void ScreenGraph::connectBlobs()
-{
-    edges.clear();
-
-    for (int i = 0; i < (int) blobs.size(); i++) {
-        blobs[i].iLastEdge = -1;
-    }
-
-    for (int ia = 0; ia < (int) blobs.size(); ia++) {
-        Blob & a = blobs[ia];
-
-        // TODO don't connect blobs with big diagonal
-
-        const long d = 2*a.diagonal;
-        const POINT & pt = a.centroid;
-        const RECT range = {pt.x - d, pt.y - d, pt.x + d, pt.y + d};
-
-        index.prepareSearch(range);
-        while (index.findNext()) {
-            const int ib = index.searchResult();
-
-            if (ia == ib)
-                continue;
-
-            Blob & b = blobs[ib];
-            // The blob with bigger diagonal and smaller
-            // index is the one that will add the edges.
-            if (a.diagonal == b.diagonal && ia > ib)
-                continue;
-            if (a.diagonal < b.diagonal || a.diagonal > 4 * b.diagonal)
-                continue;
-
-            // BB distance heuristic
-            if ((a.bb.left >= b.bb.right && a.bb.left - b.bb.right > 4) ||
-                (a.bb.top >= b.bb.bottom && a.bb.top - b.bb.bottom > 2) ||
-                (b.bb.left >= a.bb.right && b.bb.left - a.bb.right > 4) ||
-                (b.bb.top >= a.bb.bottom && b.bb.top - a.bb.bottom > 2))
-                continue;
-
-            Edge e;
-
-            // A -> B
-            e.iBlob = ib;
-            e.iNext = a.iLastEdge;
-            edges.push_back(e);
-            a.iLastEdge = edges.size() -1;
-
-            // B -> A
-            e.iBlob = ia;
-            e.iNext = b.iLastEdge;
-            edges.push_back(e);
-            b.iLastEdge = edges.size() -1;
-        }
-    }
-}
-
 void ScreenGraph::findClusters()
 {
     std::queue<int> empty;
     swap(queue, empty);
-    explored.assign(explored.size(), false);
+    explored.assign(blobs.size(), false);
 
     clusters.clear();
 
@@ -186,24 +126,33 @@ void ScreenGraph::findClusters()
             queue.push(i);
             explored[i] = true;
             while (queue.size()) {
-                const int ib = queue.front();
+                const int ia = queue.front();
                 queue.pop();
 
-                const Blob & b = blobs[ib];
-                c.bb.left = min(c.bb.left, b.bb.left);
-                c.bb.top = min(c.bb.top, b.bb.top);
-                c.bb.right = max(c.bb.right, b.bb.right);
-                c.bb.bottom = max(c.bb.bottom, b.bb.bottom);
+                const Blob & a = blobs[ia];
+                c.bb.left = min(c.bb.left, a.bb.left);
+                c.bb.top = min(c.bb.top, a.bb.top);
+                c.bb.right = max(c.bb.right, a.bb.right);
+                c.bb.bottom = max(c.bb.bottom, a.bb.bottom);
 
-                // cluster connected blobs
-                int ie = b.iLastEdge;
-                while (ie >= 0) {
-                    const Edge & e = edges[ie];
-                    if (!explored[e.iBlob]) {
-                        queue.push(e.iBlob);
-                        explored[e.iBlob] = true;
+                // TODO extract edge iteration, of a blob, into a method.
+                // To save memory, edges are not stored.
+                // Connected blobs are discovered on demand.
+                const long d = 2*a.diagonal;
+                const POINT & pt = a.centroid;
+                const RECT range = {pt.x - d, pt.y - d, pt.x + d, pt.y + d};
+
+                index.prepareSearch(range);
+                while (index.findNext()) {
+                    const int ib = index.searchResult();
+
+                    if (ia == ib)
+                        continue;
+
+                    if (!explored[ib] && areConnected(ia, ib)) {
+                        queue.push(ib);
+                        explored[ib] = true;
                     }
-                    ie = e.iNext;
                 }
             }
 
@@ -212,4 +161,25 @@ void ScreenGraph::findClusters()
 
             clusters.push_back(c);
     }
+}
+
+bool ScreenGraph::areConnected(int ia, int ib) const
+{
+    const Blob & a = blobs[ia];
+    const Blob & b = blobs[ib];
+
+    // TODO don't connect blobs with big diagonals
+
+    // BB proportions heuristic
+    if (a.diagonal > 4 * b.diagonal || b.diagonal > 4 * a.diagonal)
+        return false;
+
+    // BB distance heuristic
+    if ((a.bb.left >= b.bb.right && a.bb.left - b.bb.right > 4) ||
+        (a.bb.top >= b.bb.bottom && a.bb.top - b.bb.bottom > 2) ||
+        (b.bb.left >= a.bb.right && b.bb.left - a.bb.right > 4) ||
+        (b.bb.top >= a.bb.bottom && b.bb.top - a.bb.bottom > 2))
+        return false;
+
+    return true;
 }

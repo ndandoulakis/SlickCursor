@@ -1,5 +1,8 @@
+#include <math.h>
 #include "emuparams.h"
 #include "windows.h"
+
+using namespace std;
 
 EmuParams emu;
 
@@ -26,6 +29,10 @@ bool BeginMouseEmulation()
 {
     kbdHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, GetModuleHandle(NULL), 0);
     timerId = SetTimer(NULL, 0, 1000/40, TimerProc);
+
+    GetCursorPos(&trails[0]);
+    trails[1] = trails[0];
+
     return kbdHook && timerId;
 }
 
@@ -208,38 +215,34 @@ static void UpdateMouseTrails(const POINT & pt)
 
 static bool ChooseHalfbackPos(POINT & pt, int xdir, int ydir)
 {
-    if (xdir != 0 && ydir != 0)
+    int x = pt.x;
+    int y = pt.y;
+
+    if (xdir != 0 && trails[0].y == trails[1].y) {
+        int L = min(trails[1].x, trails[2].x);
+        int R = max(trails[1].x, trails[2].x);
+        int LR = xdir < 0? L : R;
+        int X = trails[0].x;
+        int M = xdir < 0? min(X, (X + trails[1].x)/2) : max(X, (X + trails[1].x)/2);
+        x = x > L && x < R? LR : M;
+    }
+
+    if (ydir != 0 && trails[0].x == trails[1].x) {
+        int L = min(trails[1].y, trails[2].y);
+        int R = max(trails[1].y, trails[2].y);
+        int LR = ydir < 0? L : R;
+        int Y = trails[0].y;
+        int M = ydir < 0? min(Y, (Y + trails[1].y)/2) : max(Y, (Y + trails[1].y)/2);
+        y = y > L && y < R? LR : M;
+    }
+
+    if (pt.x == x && pt.y == y)
         return false;
 
-    if (xdir < 0) {
-        if (trails[0].x > trails[1].x && trails[0].y == trails[1].y) {
-            pt.x = (trails[0].x + trails[1].x)/2;
-            return true;
-        }
-    }
+    pt.x = x;
+    pt.y = y;
 
-    if (xdir > 0) {
-        if (trails[0].x < trails[1].x && trails[0].y == trails[1].y) {
-            pt.x = (trails[0].x + trails[1].x)/2;
-            return true;
-        }
-    }
-
-    if (ydir < 0) {
-        if (trails[0].y > trails[1].y && trails[0].x == trails[1].x) {
-            pt.y = (trails[0].y + trails[1].y)/2;
-            return true;
-        }
-    }
-
-    if (ydir > 0) {
-        if (trails[0].y < trails[1].y && trails[0].x == trails[1].x) {
-            pt.y = (trails[0].y + trails[1].y)/2;
-            return true;
-        }
-    }
-
-    return false;
+    return true;
 }
 
 static void MouseLeftButton(bool down)

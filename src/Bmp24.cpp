@@ -1,4 +1,3 @@
-#include <math.h>
 #include <stdio.h>
 #include "bmp24.h"
 
@@ -149,7 +148,7 @@ void Bmp24::binarize(BYTE threshold)
         BYTE * end = row + 3 * width;
         // assumimg gray-scale bmp
         for (BYTE * rgb = row; rgb < end; rgb += 3) {
-            BYTE I = rgb[0] >= threshold? 245 : 100;
+            BYTE I = rgb[0] > threshold? 245 : 100;
             rgb[0] = I;
             rgb[1] = I;
             rgb[2] = I;
@@ -158,11 +157,10 @@ void Bmp24::binarize(BYTE threshold)
 }
 
 // Otsu's moment-preservation method.
-// thresho.c, "Practical Algorithms for Image Analysis", 2nd edition
 BYTE Bmp24::threshold() const
 {
     const int nhist = 256; // bins in histogram
-    long hist[nhist] = {0}; // hist. of intensities
+    int hist[nhist] = {0}; // hist. of intensities
     double prob[nhist];
 
     // Histogram //
@@ -181,39 +179,31 @@ BYTE Bmp24::threshold() const
         prob[i] = (double) hist[i] / (double) n;
     }
 
-    // TODO memoize computations; speed can be improved x100
-
     // Find best threshold by computing moments for all thresholds //
-    long thresh = 0;
-    long nHistM1 = nhist - 1;
+    double m0Low = prob[0];
+    double m1Low = 0;
+    double m2Low = 0;
+    double m0High = 0;
+    double m1High = 0;
+    double m2High = 0;
+    for (int i = 1; i < nhist; i++) {
+        m0High += prob[i];
+        m1High += i*prob[i];
+        m2High += i*i*prob[i];
+    }
+
+    int thresh = 0;
     double varWMin = 100000000.0;
-    for (int i = 1; i < nHistM1; i++) {
-        double   m0Low, m0High, m1Low, m1High, varLow, varHigh;
-        m0Low = m0High = m1Low = m1High = varLow = varHigh = 0.0;
+    for (int i = 1; i < nhist - 1; i++) {
+        m0Low += prob[i];
+        m1Low += i*prob[i];
+        m2Low += i*i*prob[i];
 
-        for (int j = 0; j <= i; j++) {
-            m0Low += prob[j];
-            m1Low += j * prob[j];
-        }
+        m0High -= prob[i];
+        m1High -= i*prob[i];
+        m2High -= i*i*prob[i];
 
-        m1Low = (m0Low != 0.0) ? m1Low / m0Low : i;
-
-        for (int j = i + 1; j < nhist; j++) {
-            m0High += prob[j];
-            m1High += j * prob[j];
-        }
-
-        m1High = (m0High != 0.0) ? m1High / m0High : i;
-
-        for (int j = 0; j <= i; j++) {
-            varLow += pow(j - m1Low, 2) * prob[j];
-        }
-
-        for (int j = i + 1; j < nhist; j++) {
-            varHigh += pow(j - m1High, 2) * prob[j];
-        }
-
-        double varWithin = m0Low * varLow + m0High * varHigh;
+        double varWithin = (m0Low*m2Low - m1Low*m1Low) + (m0High*m2High - m1High*m1High);
         if (varWithin < varWMin) {
             varWMin = varWithin;
             thresh = i;

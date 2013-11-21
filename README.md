@@ -40,4 +40,4 @@ With a single key press, users are able to move the mouse cursor, up and down, o
 hold down **[Left Shift]** while moving the cursor
 
 <br>
-[Download SlickCursor](https://github.com/ndandoulakis/SlickCursor/downloads)
+[Download SlickCursor](https://www.dropbox.com/sh/qw29uhj9orlpo1p/iT_tMhdz5q)

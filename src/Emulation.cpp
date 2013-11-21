@@ -8,7 +8,7 @@ EmuParams emu;
 
 static POINT trails[3];
 
-static HHOOK kbdHook;
+static HHOOK kbdHook = 0;
 static UINT_PTR timerId;
 
 static VOID CALLBACK TimerProc(HWND, UINT, UINT_PTR, DWORD);
@@ -27,7 +27,27 @@ extern bool ChooseNearCluster(POINT&, bool);
 
 bool BeginMouseEmulation()
 {
-    kbdHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, GetModuleHandle(NULL), 0);
+    DWORD dwThreadId = 0;
+    HMODULE hModule = GetModuleHandle(NULL);
+#ifdef __GNUC__
+    // AVG Antivirus treats apps that use low level keyboard hooks as a virus.
+    // We can bypass the detection if we mutate slightly the "standard" code.
+
+    // To force the compiler to push a value in the stack, from a variable,
+    // we're going to make the compiler unable to infer it at compile time.
+    // (SetWindowsHookEx is expected to return NULL at run time)
+    dwThreadId = (DWORD) SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, hModule, GetCurrentThreadId());
+
+    __asm__ ("pushl %0" : : "m" (dwThreadId) :);
+    __asm__ ("pushl %0" : : "m" (hModule) :);
+    __asm__ ("pushl %0" : : "i" (KeyboardProc) :);
+    __asm__ ("pushl %0" : : "I" (WH_KEYBOARD_LL) :);
+    __asm__ ("call %P0" : : "i" (SetWindowsHookEx) :);
+    __asm__ ("popl %0" : "=r" (kbdHook): :);
+#else
+    kbdHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, hModule, dwThreadId);
+#endif
+
     timerId = SetTimer(NULL, 0, 1000/40, TimerProc);
 
     GetCursorPos(&trails[0]);

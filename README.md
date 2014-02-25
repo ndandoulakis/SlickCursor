@@ -10,7 +10,7 @@ Monday 1, October 2012
 SlickCursor is a mouse emulator, a software that enables users to control their mouse with a keyboard.
 Additionally, SlickCursor enhances mouse emulation with on-the-fly [screen analysis](http://en.wikipedia.org/wiki/Image_analysis).
 
-![](http://nick-d.appspot.com/slickcursor_inspector_2.png)
+![](https://www.dropbox.com/s/jpesikiqvf1l2oa/slickcursor_inspector.png)
 
 With a single key press, users are able to move the mouse cursor, up and down, over *navigable* screen sections - a functionality that resembles menu item selection with keyboard.
 

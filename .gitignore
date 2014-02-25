@@ -5,6 +5,12 @@
 *.depend
 *.layout
 
+###################
+## Project Specific
+###################
+
+SlickCursor.txt
+
 #################
 ## Eclipse
 #################

@@ -1,12 +1,5 @@
 ### SlickCursor
 
-Nick Dandoulakis
-<br>
-ndandoulakis@hotmail.com
-
-Monday 1, October 2012
-
-
 SlickCursor is a mouse emulator that performs on-the-fly [screen analysis](http://en.wikipedia.org/wiki/Image_analysis).
 
 ![](https://dl.dropbox.com/s/jpesikiqvf1l2oa/slickcursor_inspector.png)

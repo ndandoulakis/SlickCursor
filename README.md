@@ -1,9 +1,9 @@
-### SlickCursor
+### SlickCursor [(download)](https://www.dropbox.com/sh/qw29uhj9orlpo1p/iT_tMhdz5q)
 
 SlickCursor is a mouse emulator that performs on-the-fly [screen analysis](http://en.wikipedia.org/wiki/Image_analysis).
 
 ![](https://dl.dropbox.com/s/jpesikiqvf1l2oa/slickcursor_inspector.png)
-
+ 
 You can move the mouse cursor up and down, over *navigable* screen sections - a functionality that resembles menu item selection, with a single key press.
 
 *Navigable* sections are detected on-the-fly, while users operate the application. The sections are never displayed on the screen because users don't need to be aware of them. They are visible only through the *Inspector* window. 
@@ -30,5 +30,3 @@ You can move the mouse cursor up and down, over *navigable* screen sections - a 
 
 #### Fast speed
 Hold down **[Left Shift]** while moving the cursor
-
-[Download SlickCursor](https://www.dropbox.com/sh/qw29uhj9orlpo1p/iT_tMhdz5q)
